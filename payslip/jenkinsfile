@@ -3,7 +3,7 @@ pipeline{
         stages {
             stage('sourcecode'){
                steps{
-                   checkout changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/abhiraghu1289/Payslip.git']]]
+                   checkout changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/abhiraghu1289/CIandCD.git']]]
                } 
             }
             stage('Compile'){
@@ -28,11 +28,8 @@ pipeline{
             }
             stage('Deploy'){
                 steps{
-                    
-                    sshagent(['tomcat2']){
-                        sh 'scp /root/.jenkins/workspace/Pipeline_petclinic_actual/target/*.jar root@18.188.91.68:/opt/apache-tomcat-7.0.93/webapps/'
-                    }
-                } 
+                    ansiblePlaybook becomeUser: null, installation: 'Ansible', playbook: '/opt/copy.yml', sudo: true, sudoUser: null
+                }
                 
             }
         }
