@@ -1,0 +1,39 @@
+pipeline{
+    agent any
+        stages {
+            stage('sourcecode'){
+               steps{
+                   checkout changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/abhiraghu1289/CIandCD.git']]]
+               } 
+            }
+            stage('Compile'){
+                steps{
+                    sh 'mvn compile'
+                }
+            }
+            stage('Compile-test'){
+                steps{
+                    sh 'mvn test-compile'
+                }
+            }
+            stage('test'){
+                steps{
+                    sh 'mvn test'
+                }
+            }
+            stage('package'){
+                steps{
+                    sh 'mvn package'
+                }
+            }
+            stage('Deploy'){
+                steps{
+                    
+                    sshagent(['tomcat2']){
+                        sh 'scp /root/.jenkins/workspace/Pipeline_petclinic_actual/target/*.jar root@18.188.91.68:/opt/apache-tomcat-7.0.93/webapps/'
+                    }
+                } 
+                
+            }
+        }
+}
