@@ -1,0 +1,36 @@
+pipeline{
+    agent any
+        stages {
+            stage('sourcecode'){
+               steps{
+                   checkout changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/abhiraghu1289/Payslip.git']]]
+               } 
+            }
+            stage('Compile'){
+                steps{
+                    sh 'mvn compile'
+                }
+            }
+            stage('Compile-test'){
+                steps{
+                    sh 'mvn test-compile'
+                }
+            }
+            stage('test'){
+                steps{
+                    sh 'mvn test'
+                }
+            }
+            stage('package'){
+                steps{
+                    sh 'mvn package'
+                }
+            }
+            stage('Deploy'){
+                steps{
+                    ansiblePlaybook becomeUser: null, installation: 'Ansible', playbook: '/opt/copy.yml', sudo: true, sudoUser: null
+                }
+                
+            }
+        }
+}
